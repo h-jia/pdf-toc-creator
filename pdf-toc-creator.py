@@ -3,9 +3,12 @@ import os,io
 import sys
 import getopt,codecs
 import PyPDF2
+# from importlib import reload
 import re
-reload(sys)
-sys.setdefaultencoding('utf-8') # 解决PyPDF2不能很好处理中文的问题
+
+# [\u4e00-\u9fa5] [0-9]
+# reload(sys)
+# sys.setdefaultencoding('utf-8') # 解决PyPDF2不能很好处理中文的问题
 
 ## 用法
 # 参数说明
@@ -26,11 +29,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "hf:o:t:", ["file=", "offset=", "toc="])
     except getopt.GetoptError:
-        print 'python pdf-toc-creator.py -f <pdf_file_name> -o <pageno_offset> -t <toc_file_name>'
+        print('python pdf-toc-creator.py -f <pdf_file_name> -o <pageno_offset> -t <toc_file_name>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print 'python pdf-toc-creator.py -f <pdf_file_name> -o <pageno_offset> -t <toc_file_name>'
+            print('python pdf-toc-creator.py -f <pdf_file_name> -o <pageno_offset> -t <toc_file_name>')
             sys.exit()
         elif opt in ("-f", "--file"):
             origFileName = arg
@@ -60,13 +63,13 @@ def main(argv):
     for line in tocLines:
         tabCnt = len(re.findall(r'^(\t*)', line)[0])
         if tabCnt >= MAX_LEVEL:
-            print 'too many level'
+            print('too many level')
             sys.exit(2)
         title = line.split(';')[0]
         title = re.sub(r'^\t*', '', title)
         pageNo = int((line.split(';')[1]).strip()) + offset
         parent = parentsBookmark[tabCnt - 1] if tabCnt > 0 else None
-        parentsBookmark[tabCnt] = pdfWriter.addBookmark(title.decode('utf-8'), pageNo, parent)
+        parentsBookmark[tabCnt] = pdfWriter.addBookmark(title, pageNo, parent)
 
     newFile = open(newFileName,'wb')
     pdfWriter.write(newFile)
